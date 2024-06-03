@@ -1,15 +1,24 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, BackgroundTasks
 from transformers import pipeline
 from collections import defaultdict
+import asyncio
 
 app = FastAPI()
 
+ner_pipe = None
+summarization_pipe = None
 
-@app.post("/process_text/")
-async def process_text(text: str):
-
+async def load_models():
+    global ner_pipe, summarization_pipe
     ner_pipe = pipeline("token-classification", model="Clinical-AI-Apollo/Medical-NER")
     summarization_pipe = pipeline("summarization", model="Falconsai/text_summarization")
+
+@app.post("/process_text/")
+async def process_text(text: str, background_tasks: BackgroundTasks):
+
+    if ner_pipe is None or summarization_pipe is None:
+        background_tasks.add_task(load_models)
+        return {"message": "Models are being loaded. Please try again later."}
 
     ner_output = ner_pipe(text)
     ner_dict = defaultdict(lambda: [])
