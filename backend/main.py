@@ -18,7 +18,7 @@ async def process_text(text: str, background_tasks: BackgroundTasks):
 
     if ner_pipe is None or summarization_pipe is None:
         background_tasks.add_task(load_models)
-        return {"message": "Models are being loaded. Please try again later."}
+        # return {"message": "Models are being loaded. Please try again later."}
 
     while ner_pipe is None or summarization_pipe is None:
         await asyncio.sleep(1)
