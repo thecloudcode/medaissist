@@ -20,6 +20,9 @@ async def process_text(text: str, background_tasks: BackgroundTasks):
         background_tasks.add_task(load_models)
         return {"message": "Models are being loaded. Please try again later."}
 
+    while ner_pipe is None or summarization_pipe is None:
+        await asyncio.sleep(1)
+
     ner_output = ner_pipe(text)
     ner_dict = defaultdict(lambda: [])
     last_entity = ""
